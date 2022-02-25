@@ -75,7 +75,7 @@ def main():
 	with open(json_file_name) as json_file:
 		data = json.load(json_file)
 		for k in data.keys():
-			print("\n\nQuerying %s...\n\n" % k)
+			print("\n\n-----------------Querying %s----------------\n\n" % k)
 			url = data[k][0]["url"]
 			username = data[k][0]["username"]
 			password = data[k][0]["password"]
