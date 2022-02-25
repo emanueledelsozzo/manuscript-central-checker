@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,6 +11,17 @@ import argparse
 import json
 
 from time import sleep
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def query_website(driver, url, username, password, timeout):
 
@@ -45,18 +57,29 @@ def query_website(driver, url, username, password, timeout):
 		while(True):
 			try:
 				current_queue="queue_"+str(queue_id)
-				queue_bar = author_table.find_element_by_id(current_queue) 
-				print(queue_bar.text)
+				queue_bar = author_table.find_element_by_id(current_queue)
+				infos = queue_bar.find_elements_by_tag_name("td")
+
+				infos_len = len(infos)
+				for c, i in enumerate(infos):
+					if c == 0:
+						data = i.text.split("\n")[0].strip()
+					elif c == 2:
+						data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
+					elif c < infos_len - 2:
+						data = i.text.strip()
+					else:
+						continue
+					if data != "":
+						print(data)
+
+				print("\n\n")
 				queue_id += 1
-			except:
+			except NoSuchElementException:
 				break
 	except TimeoutException:
 		print("Timed out waiting for author page to load")
 		exit()
-
-
-
-
 
 
 def main():
@@ -72,10 +95,12 @@ def main():
 	options.add_argument("--headless")
 	driver = webdriver.Chrome('./chromedriver', options=options)
 
+	print("\n\n")
+
 	with open(json_file_name) as json_file:
 		data = json.load(json_file)
 		for k in data.keys():
-			print("\n\n-----------------Querying %s----------------\n\n" % k)
+			print(bcolors.WARNING + "-----------------Querying %s----------------\n\n\n" % (k) + bcolors.ENDC)
 			url = data[k][0]["url"]
 			username = data[k][0]["username"]
 			password = data[k][0]["password"]
