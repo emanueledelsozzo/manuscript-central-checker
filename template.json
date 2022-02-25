@@ -1,0 +1,30 @@
+{
+	"Transaction 1": [
+		{
+			"url": "https://mc.manuscriptcentral.com/transaction_1",
+			"username": "name.lastname@something.com",
+			"password": "MyPasswordForTransaction1"
+		}
+	],
+	"Transaction 2": [
+		{
+			"url": "https://mc.manuscriptcentral.com/transaction_2",
+			"username": "name.lastname@something.com",
+			"password": "MyPasswordForTransaction2"
+		}
+	],
+	"Transaction 3": [
+		{
+			"url": "https://mc.manuscriptcentral.com/transaction_3",
+			"username": "name.lastname@something.com",
+			"password": "MyPasswordForTransaction3"
+		}
+	],
+	"Transaction 4": [
+		{
+			"url": "https://mc.manuscriptcentral.com/transaction_4",
+			"username": "name.lastname@something.com",
+			"password": "MyPasswordForTransaction4"
+		}
+	]
+}
