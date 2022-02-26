@@ -68,7 +68,6 @@ def query_website(driver, url, username, password, timeout):
 				for c, i in enumerate(infos):
 					if not adm_found:
 						adms = [j.strip() for j in i.text.split("\n") if "ADM:" in j or "INF:" in j or "EIC:" in j]
-#						if "ADM:" in i.text or "INF:" in i.text:
 						if len(adms) > 0:
 							data = "\n".join(adms)
 							adm_found = True
@@ -83,19 +82,6 @@ def query_website(driver, url, username, password, timeout):
 						continue
 					if data != "":
 						print(data)
-
-
-				# for c, i in enumerate(infos):
-				# 	if c == 0:
-				# 		data = i.text.split("\n")[0].strip()
-				# 	elif c == 2:
-				# 		data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
-				# 	elif c < infos_len - 2:
-				# 		data = i.text.strip()
-				# 	else:
-				# 		continue
-				# 	if data != "":
-				# 		print(data)
 
 				print("\n\n")
 				queue_id += 1
