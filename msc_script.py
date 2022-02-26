@@ -10,6 +10,8 @@ from selenium.webdriver.common.by import By
 import argparse
 import json
 
+import traceback
+
 from time import sleep
 
 class bcolors:
@@ -61,10 +63,19 @@ def query_website(driver, url, username, password, timeout):
 				infos = queue_bar.find_elements_by_tag_name("td")
 
 				infos_len = len(infos)
+				adm_found = False
+				adm_index = -1
 				for c, i in enumerate(infos):
-					if c == 0:
-						data = i.text.split("\n")[0].strip()
-					elif c == 2:
+					if not adm_found:
+						adms = [j.strip() for j in i.text.split("\n") if "ADM:" in j or "INF:" in j or "EIC:" in j]
+#						if "ADM:" in i.text or "INF:" in i.text:
+						if len(adms) > 0:
+							data = "\n".join(adms)
+							adm_found = True
+							adm_index = c
+						else:
+							data = ""
+					elif c - adm_index == 2:
 						data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
 					elif c < infos_len - 2:
 						data = i.text.strip()
@@ -72,6 +83,19 @@ def query_website(driver, url, username, password, timeout):
 						continue
 					if data != "":
 						print(data)
+
+
+				# for c, i in enumerate(infos):
+				# 	if c == 0:
+				# 		data = i.text.split("\n")[0].strip()
+				# 	elif c == 2:
+				# 		data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
+				# 	elif c < infos_len - 2:
+				# 		data = i.text.strip()
+				# 	else:
+				# 		continue
+				# 	if data != "":
+				# 		print(data)
 
 				print("\n\n")
 				queue_id += 1
@@ -91,22 +115,26 @@ def main():
 	args = parser.parse_args()
 	json_file_name = args.json
 
-	options = Options()
-	options.add_argument("--headless")
-	driver = webdriver.Chrome('./chromedriver', options=options)
+	try:
+		options = Options()
+		options.add_argument("--headless")
+		driver = webdriver.Chrome('./chromedriver', options=options)
 
-	print("\n\n")
+		print("\n\n")
 
-	with open(json_file_name) as json_file:
-		data = json.load(json_file)
-		for k in data.keys():
-			print(bcolors.WARNING + "-----------------Querying %s----------------\n\n\n" % (k) + bcolors.ENDC)
-			url = data[k][0]["url"]
-			username = data[k][0]["username"]
-			password = data[k][0]["password"]
-			query_website(driver, url, username, password, args.timeout)
+		with open(json_file_name) as json_file:
+			data = json.load(json_file)
+			for k in data.keys():
+				print(bcolors.WARNING + "-----------------Querying %s----------------\n\n\n" % (k) + bcolors.ENDC)
+				url = data[k][0]["url"]
+				username = data[k][0]["username"]
+				password = data[k][0]["password"]
+				query_website(driver, url, username, password, args.timeout)
 
-	driver.close()
+	except Exception: 
+		traceback.print_exc()
+	finally:
+		driver.close()
 
 
 if __name__ == '__main__':
