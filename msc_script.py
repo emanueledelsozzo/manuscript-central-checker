@@ -106,6 +106,7 @@ def main():
 			password = data[k][0]["password"]
 			query_website(driver, url, username, password, args.timeout)
 
+	driver.close()
 
 
 if __name__ == '__main__':
