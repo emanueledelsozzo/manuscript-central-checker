@@ -78,8 +78,10 @@ def query_website(driver, url, username, password, timeout):
 						data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
 					elif c < infos_len - 2:
 						data = i.text.strip()
-					else:
+					elif c < infos_len - 1:
 						continue
+					else:
+						data = "Submitted on: " + i.text.strip()
 					if data != "":
 						print(data)
 
