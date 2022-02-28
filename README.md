@@ -8,7 +8,7 @@ Requirements:
 - Selenium
 - ChromeDriver (https://chromedriver.chromium.org/downloads)
 
-After installing the required packages, run the script as follows:
+After installing the required packages, place the ChromeDriver in the same folder of the script and run the script as follows:
 
 python msc_script.py -j websites.json -t timeout
 
