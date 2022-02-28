@@ -10,7 +10,7 @@ Requirements:
 
 After installing the required packages, place the ChromeDriver in the same folder of the script and run the script as follows:
 
-python msc_script.py -j websites.json -t timeout
+`python msc_script.py -j websites.json -t timeout`
 
 where:
 - -j JSON, --json JSON: a json file containing the list of websites to check along with username and password (a template json file is provided)
