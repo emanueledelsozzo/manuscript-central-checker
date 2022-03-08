@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 
 import argparse
 import json
@@ -96,7 +97,8 @@ def main():
 	options.add_argument("--headless")
 	#options.add_argument("--disable-dev-shm-usage")
 	#options.add_argument("--no-sandbox")
-	driver = webdriver.Chrome('/snap/bin/chromium.chromedriver', options=options)
+	serv = Service('/snap/bin/chromium.chromedriver')
+	driver = webdriver.Chrome(service=serv, options=options)
 
 	print("\n\n")
 
