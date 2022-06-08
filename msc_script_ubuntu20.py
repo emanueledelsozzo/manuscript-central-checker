@@ -13,6 +13,8 @@ import json
 
 from time import sleep
 
+default_max_entry = 100
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -24,7 +26,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def query_website(driver, url, username, password, timeout):
+def query_website(driver, url, username, password, max_entry, timeout):
 
 	driver.get(url)
 
@@ -56,7 +58,7 @@ def query_website(driver, url, username, password, timeout):
 		WebDriverWait(driver, timeout).until(element_present)
 		author_table = driver.find_element(by=By.ID, value="authorDashboardQueue")
 		queue_id=0
-		while(True):
+		while(queue_id < max_entry):
 			try:
 				current_queue="queue_"+str(queue_id)
 				queue_bar = author_table.find_element(by=By.ID, value=current_queue)
@@ -87,7 +89,8 @@ def query_website(driver, url, username, password, timeout):
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-j", "--json", type=str, required=True, \
-		help="a json file containing the list of websites to check along with username and password")
+		help="a json file containing the list of websites to check along with username, password, \
+			and the number of max entries to report [optional]")
 	parser.add_argument("-t", "--timeout", type=int, default=2, \
 		help="[optional] timeout waiting for website response (default=2)")
 	args = parser.parse_args()
@@ -109,7 +112,8 @@ def main():
 			url = data[k][0]["url"]
 			username = data[k][0]["username"]
 			password = data[k][0]["password"]
-			query_website(driver, url, username, password, args.timeout)
+			max_entry = data[k][0]["max_entry"] if "max_entry" in data[k][0] else default_max_entry
+			query_website(driver, url, username, password, max_entry, args.timeout)
 
 
 
