@@ -26,6 +26,50 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def get_entries(driver, timeout, max_entry):
+	try:
+		element_present = EC.presence_of_element_located((By.ID, "authorDashboardQueue"))
+		WebDriverWait(driver, timeout).until(element_present)
+		author_table = driver.find_element(by=By.ID, value="authorDashboardQueue")
+		queue_id=0
+		while(queue_id < max_entry):
+			try:
+				current_queue="queue_"+str(queue_id)
+				queue_bar = author_table.find_element(by=By.ID, value=current_queue)
+				# infos = queue_bar.find_elements_by_tag_name("td")
+				infos = queue_bar.find_elements(by=By.TAG_NAME, value="td")
+				infos_len = len(infos)
+				adm_found = False
+				adm_index = -1
+				for c, i in enumerate(infos):
+					if not adm_found:
+						adms = [j.strip() for j in i.text.split("\n") if "ADM:" in j or "INF:" in j or "EIC:" in j]
+						if len(adms) > 0:
+							data = "\n".join(adms)
+							adm_found = True
+							adm_index = c
+						else:
+							data = ""
+					elif c - adm_index == 2:
+						data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
+					elif c < infos_len - 2:
+						data = i.text.strip()
+					elif c < infos_len - 1:
+						continue
+					else:
+						data = "Submitted on: " + i.text.strip()
+					if data != "":
+						print(data)
+
+
+				print("\n\n")
+				queue_id += 1
+			except NoSuchElementException:
+				break
+	except TimeoutException:
+		print("Timed out waiting for author page to load")
+		exit()
+
 def query_website(driver, url, username, password, max_entry, timeout):
 
 	driver.get(url)
@@ -53,38 +97,14 @@ def query_website(driver, url, username, password, max_entry, timeout):
 			i.click()
 			break
 	
-	try:
-		element_present = EC.presence_of_element_located((By.ID, "authorDashboardQueue"))
-		WebDriverWait(driver, timeout).until(element_present)
-		author_table = driver.find_element(by=By.ID, value="authorDashboardQueue")
-		queue_id=0
-		while(queue_id < max_entry):
-			try:
-				current_queue="queue_"+str(queue_id)
-				queue_bar = author_table.find_element(by=By.ID, value=current_queue)
-				# infos = queue_bar.find_elements_by_tag_name("td")
-				infos = queue_bar.find_elements(by=By.TAG_NAME, value="td")
-				infos_len = len(infos)
-				for c, i in enumerate(infos):
-					if c == 0:
-						data = i.text.split("\n")[0].strip()
-					elif c == 2:
-						data = bcolors.FAIL + i.text.strip() + bcolors.ENDC
-					elif c < infos_len - 2:
-						data = i.text.strip()
-					else:
-						continue
-					if data != "":
-						print(data)
+	get_entries(driver, timeout, max_entry)
 
-				print("\n\n")
-				queue_id += 1
-			except NoSuchElementException:
-				break
-	except TimeoutException:
-		print("Timed out waiting for author page to load")
-		exit()
-
+	coauthor = driver.find_elements(by=By.CLASS_NAME, value="nav-submenu")
+	for i in coauthor:
+		if("Manuscripts I Have Co-Authored" in i.text):
+			i.click()
+			break
+	get_entries(driver, timeout, max_entry)
 
 def main():
 	parser = argparse.ArgumentParser()
