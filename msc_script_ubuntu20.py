@@ -95,16 +95,22 @@ def query_website(driver, url, username, password, max_entry, timeout):
 	for i in nav_links:
 		if(i.text == "Author"):
 			i.click()
+			get_entries(driver, timeout, max_entry)
 			break
-	
-	get_entries(driver, timeout, max_entry)
+
+	decision = driver.find_elements(by=By.CLASS_NAME, value="nav-submenu")
+	for i in decision:
+		if("Manuscripts with Decisions" in i.text):
+			i.click()
+			get_entries(driver, timeout, max_entry)
+			break
 
 	coauthor = driver.find_elements(by=By.CLASS_NAME, value="nav-submenu")
 	for i in coauthor:
 		if("Manuscripts I Have Co-Authored" in i.text):
 			i.click()
+			get_entries(driver, timeout, max_entry)
 			break
-	get_entries(driver, timeout, max_entry)
 
 def main():
 	parser = argparse.ArgumentParser()
