@@ -27,32 +27,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def query_website(driver, url, username, password, max_entry, timeout):
-
-	driver.get(url)
-
-	try:
-		element_present = EC.presence_of_element_located((By.NAME, "USERID"))
-		WebDriverWait(driver, timeout).until(element_present)
-		login_bar = driver.find_element_by_name("USERID")
-		login_bar.clear()
-		login_bar.send_keys(username)
-		pass_bar = driver.find_element_by_name("PASSWORD")
-		pass_bar.clear()
-		pass_bar.send_keys(password)
-		pass_bar.send_keys(Keys.RETURN)
-	except TimeoutException:
-		print("Timed out waiting for page %s to load" % url)
-		exit()
-
-	sleep(timeout)
-
-	nav_links = driver.find_elements_by_class_name("nav-link")
-	for i in nav_links:
-		if(i.text == "Author"):
-			i.click()
-			break
-	
+def get_entries(driver, timeout, max_entry):
 	try:
 		element_present = EC.presence_of_element_located((By.ID, "authorDashboardQueue"))
 		WebDriverWait(driver, timeout).until(element_present)
@@ -63,7 +38,7 @@ def query_website(driver, url, username, password, max_entry, timeout):
 				current_queue="queue_"+str(queue_id)
 				queue_bar = author_table.find_element_by_id(current_queue)
 				infos = queue_bar.find_elements_by_tag_name("td")
-
+				
 				infos_len = len(infos)
 				adm_found = False
 				adm_index = -1
@@ -96,6 +71,48 @@ def query_website(driver, url, username, password, max_entry, timeout):
 		exit()
 
 
+
+def query_website(driver, url, username, password, max_entry, timeout):
+
+	driver.get(url)
+
+	try:
+		element_present = EC.presence_of_element_located((By.NAME, "USERID"))
+		WebDriverWait(driver, timeout).until(element_present)
+		login_bar = driver.find_element_by_name("USERID")
+		login_bar.clear()
+		login_bar.send_keys(username)
+		pass_bar = driver.find_element_by_name("PASSWORD")
+		pass_bar.clear()
+		pass_bar.send_keys(password)
+		pass_bar.send_keys(Keys.RETURN)
+	except TimeoutException:
+		print("Timed out waiting for page %s to load" % url)
+		exit()
+
+	sleep(timeout)
+
+	nav_links = driver.find_elements_by_class_name("nav-link")
+	for i in nav_links:
+		if(i.text == "Author"):
+			i.click()
+#			get_entries(driver, timeout, max_entry)
+			break
+	
+	decision = driver.find_elements_by_class_name("nav-submenu")
+	for i in decision:
+		if("Manuscripts with Decisions" in i.text):
+			i.click()
+			get_entries(driver, timeout, max_entry)
+			break
+
+	coauthor = driver.find_elements_by_class_name("nav-submenu")
+	for i in coauthor:
+		if("Manuscripts I Have Co-Authored" in i.text):
+			i.click()
+			get_entries(driver, timeout, max_entry)
+			break
+	
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-j", "--json", type=str, required=True, \
