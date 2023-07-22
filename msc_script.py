@@ -14,7 +14,7 @@ import traceback
 
 from time import sleep
 
-default_max_entry = 100
+default_max_entries = 100
 
 class bcolors:
     HEADER = '\033[95m'
@@ -27,13 +27,13 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def get_entries(driver, timeout, max_entry):
+def get_entries(driver, timeout, max_entries):
 	try:
 		element_present = EC.presence_of_element_located((By.ID, "authorDashboardQueue"))
 		WebDriverWait(driver, timeout).until(element_present)
 		author_table = driver.find_element_by_id("authorDashboardQueue")
-		queue_id=0
-		while(queue_id < max_entry):
+		queue_id = 0
+		while(queue_id < max_entries):
 			try:
 				current_queue="queue_"+str(queue_id)
 				queue_bar = author_table.find_element_by_id(current_queue)
@@ -70,9 +70,11 @@ def get_entries(driver, timeout, max_entry):
 		print("Timed out waiting for author page to load")
 		exit()
 
+	return queue_id
 
 
-def query_website(driver, url, username, password, max_entry, timeout):
+
+def query_website(driver, url, username, password, max_entries, timeout):
 
 	driver.get(url)
 
@@ -92,26 +94,32 @@ def query_website(driver, url, username, password, max_entry, timeout):
 
 	sleep(timeout)
 
-	nav_links = driver.find_elements_by_class_name("nav-link")
-	for i in nav_links:
-		if(i.text == "Author"):
-			i.click()
-#			get_entries(driver, timeout, max_entry)
-			break
+	if max_entries > 0:
+		nav_links = driver.find_elements_by_class_name("nav-link")
+		for i in nav_links:
+			if(i.text == "Author"):
+				i.click()
+				current_entries = get_entries(driver, timeout, max_entries)
+				max_entries -= current_entries
+				break
 	
-	decision = driver.find_elements_by_class_name("nav-submenu")
-	for i in decision:
-		if("Manuscripts with Decisions" in i.text):
-			i.click()
-			get_entries(driver, timeout, max_entry)
-			break
+	if max_entries > 0:
+		decision = driver.find_elements_by_class_name("nav-submenu")
+		for i in decision:
+			if("Manuscripts with Decisions" in i.text):
+				i.click()
+				current_entries = get_entries(driver, timeout, max_entries)
+				max_entries -= current_entries
+				break
 
-	coauthor = driver.find_elements_by_class_name("nav-submenu")
-	for i in coauthor:
-		if("Manuscripts I Have Co-Authored" in i.text):
-			i.click()
-			get_entries(driver, timeout, max_entry)
-			break
+	if max_entries > 0:
+		coauthor = driver.find_elements_by_class_name("nav-submenu")
+		for i in coauthor:
+			if("Manuscripts I Have Co-Authored" in i.text):
+				i.click()
+				current_entries = get_entries(driver, timeout, max_entries)
+				max_entries -= current_entries
+				break
 	
 def main():
 	parser = argparse.ArgumentParser()
@@ -126,6 +134,7 @@ def main():
 	try:
 		options = Options()
 		options.add_argument("--headless")
+		options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.102 Safari/537.36")
 		driver = webdriver.Chrome('./chromedriver', options=options)
 
 		print("\n\n")
@@ -137,8 +146,8 @@ def main():
 				url = data[k][0]["url"]
 				username = data[k][0]["username"]
 				password = data[k][0]["password"]
-				max_entry = data[k][0]["max_entry"] if "max_entry" in data[k][0] else default_max_entry
-				query_website(driver, url, username, password, max_entry, args.timeout)
+				max_entries = data[k][0]["max_entries"] if "max_entries" in data[k][0] else default_max_entries
+				query_website(driver, url, username, password, max_entries, args.timeout)
 
 	except Exception: 
 		traceback.print_exc()

@@ -4,7 +4,7 @@
 			"url": "https://mc.manuscriptcentral.com/transaction_1",
 			"username": "name.lastname@something.com",
 			"password": "MyPasswordForTransaction1",
-			"max_entry": 2
+			"max_entries": 2
 		}
 	],
 	"Transaction 2": [
@@ -19,7 +19,7 @@
 			"url": "https://mc.manuscriptcentral.com/transaction_3",
 			"username": "name.lastname@something.com",
 			"password": "MyPasswordForTransaction3",
-			"max_entry": 5
+			"max_entries": 5
 		}
 	],
 	"Transaction 4": [
