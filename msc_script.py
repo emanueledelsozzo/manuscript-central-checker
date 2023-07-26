@@ -94,6 +94,12 @@ def query_website(driver, url, username, password, max_entries, timeout):
 
 	sleep(timeout)
 
+	try:
+		onetrust = driver.find_element_by_id("onetrust-close-btn-container")
+		onetrust.click()
+	except NoSuchElementException:
+		pass
+
 	if max_entries > 0:
 		nav_links = driver.find_elements_by_class_name("nav-link")
 		for i in nav_links:
@@ -136,7 +142,6 @@ def main():
 		options.add_argument("--headless")
 		options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.102 Safari/537.36")
 		driver = webdriver.Chrome('./chromedriver', options=options)
-
 		print("\n\n")
 
 		with open(json_file_name) as json_file:
