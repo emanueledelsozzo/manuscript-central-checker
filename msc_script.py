@@ -68,7 +68,7 @@ def get_entries(driver, timeout, max_entries):
 				break
 	except TimeoutException:
 		print("Timed out waiting for author page to load")
-		exit()
+		return None
 
 	return queue_id
 
@@ -90,31 +90,47 @@ def query_website(driver, url, username, password, max_entries, timeout):
 		pass_bar.send_keys(Keys.RETURN)
 	except TimeoutException:
 		print("Timed out waiting for page %s to load" % url)
-		exit()
+		return
 
 	sleep(timeout)
 
 	try:
 		onetrust = driver.find_element_by_id("onetrust-close-btn-container")
 		onetrust.click()
+		#sleep(timeout)
 	except NoSuchElementException:
 		pass
 
 	if max_entries > 0:
-		nav_links = driver.find_elements_by_class_name("nav-link")
-		for i in nav_links:
-			if(i.text == "Author"):
-				i.click()
-				current_entries = get_entries(driver, timeout, max_entries)
-				max_entries -= current_entries
-				break
-	
+		try:
+			while True:
+				element_present = EC.presence_of_element_located((By.CLASS_NAME, "nav-link"))
+				WebDriverWait(driver, timeout).until(element_present)
+				nav_links = driver.find_elements_by_class_name("nav-link")
+				found = False
+				for i in nav_links:
+					if(i.text == "Author"):
+						i.click()
+						current_entries = get_entries(driver, timeout, max_entries)
+						if current_entries is None:
+							return
+						max_entries -= current_entries
+						found = True
+						break
+				if found:
+					break
+		except TimeoutException:
+			print("Timed out waiting for nav-link")
+			return
+
 	if max_entries > 0:
 		decision = driver.find_elements_by_class_name("nav-submenu")
 		for i in decision:
 			if("Manuscripts with Decisions" in i.text):
 				i.click()
 				current_entries = get_entries(driver, timeout, max_entries)
+				if current_entries is None:
+					return
 				max_entries -= current_entries
 				break
 
@@ -124,6 +140,8 @@ def query_website(driver, url, username, password, max_entries, timeout):
 			if("Manuscripts I Have Co-Authored" in i.text):
 				i.click()
 				current_entries = get_entries(driver, timeout, max_entries)
+				if current_entries is None:
+					return
 				max_entries -= current_entries
 				break
 	
