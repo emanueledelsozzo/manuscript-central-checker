@@ -1,14 +1,16 @@
 # manuscript-central-checker
 A Python-based script to check the status of transactions and journals on Manuscript Central
 
-The script has been tested on Python 3.6 with ChromeDriver 98.0.4758.102
+The script has been tested with Python 3.8 on macOS Monterey.
+The Ubuntu version needs updates to work with the latest versions of Selenium.
 
 Requirements:
-- Python >=3.6
-- Selenium (`pip install selenium`)
-- ChromeDriver (https://chromedriver.chromium.org/downloads)
+- Python >=3.8
+- Selenium >= 4.11.2 (`pip install selenium`)
 
-After installing the required packages, place the ChromeDriver in the same folder of the script and run the script as follows:
+As of Selenium 4.10.0, a fully-integrated driver manager takes care of downloading the necessary drivers. Thus, manually downloading the ChromeDriver (https://chromedriver.chromium.org/downloads) is not necessary anymore.
+
+After installing the required packages, run the script as follows:
 
 `python msc_script.py -j websites.json -t timeout`
 
@@ -18,6 +20,7 @@ where:
 
 
 This tool has been tested on:
+- Transactions on Reconfigurable Technology and Systems (TRETS) (https://mc.manuscriptcentral.com/trets)
 - Transactions on Emerging Topics in Computing (TETC) (https://mc.manuscriptcentral.com/tetc-cs)
 - IEEE Journal of Biomedical and Health Informatics (JBHI) (https://mc.manuscriptcentral.com/jbhi-embs)
 - Transactions on Parallel and Distributed Systems (TPDS) (https://mc.manuscriptcentral.com/tpds-cs)

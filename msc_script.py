@@ -1,4 +1,6 @@
 from selenium import webdriver
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
@@ -31,13 +33,14 @@ def get_entries(driver, timeout, max_entries):
 	try:
 		element_present = EC.presence_of_element_located((By.ID, "authorDashboardQueue"))
 		WebDriverWait(driver, timeout).until(element_present)
-		author_table = driver.find_element_by_id("authorDashboardQueue")
+		#author_table = driver.find_element_by_id("authorDashboardQueue")
+		author_table = driver.find_element("id", "authorDashboardQueue")
 		queue_id = 0
 		while(queue_id < max_entries):
 			try:
 				current_queue="queue_"+str(queue_id)
-				queue_bar = author_table.find_element_by_id(current_queue)
-				infos = queue_bar.find_elements_by_tag_name("td")
+				queue_bar = author_table.find_element("id", current_queue)
+				infos = queue_bar.find_elements("tag name", "td")
 				
 				infos_len = len(infos)
 				adm_found = False
@@ -81,10 +84,12 @@ def query_website(driver, url, username, password, max_entries, timeout):
 	try:
 		element_present = EC.presence_of_element_located((By.NAME, "USERID"))
 		WebDriverWait(driver, timeout).until(element_present)
-		login_bar = driver.find_element_by_name("USERID")
+		#login_bar = driver.find_element_by_name("USERID")
+		login_bar = driver.find_element("name", "USERID")
 		login_bar.clear()
 		login_bar.send_keys(username)
-		pass_bar = driver.find_element_by_name("PASSWORD")
+		#pass_bar = driver.find_element_by_name("PASSWORD")
+		pass_bar = driver.find_element("name", "PASSWORD")
 		pass_bar.clear()
 		pass_bar.send_keys(password)
 		pass_bar.send_keys(Keys.RETURN)
@@ -95,7 +100,8 @@ def query_website(driver, url, username, password, max_entries, timeout):
 	sleep(timeout)
 
 	try:
-		onetrust = driver.find_element_by_id("onetrust-close-btn-container")
+		#onetrust = driver.find_element_by_id("onetrust-close-btn-container")
+		onetrust = driver.find_element("id", "onetrust-accept-btn-handler")
 		onetrust.click()
 		#sleep(timeout)
 	except NoSuchElementException:
@@ -103,10 +109,12 @@ def query_website(driver, url, username, password, max_entries, timeout):
 
 	if max_entries > 0:
 		try:
-			while True:
+			retry = 0
+			while retry < 3:
 				element_present = EC.presence_of_element_located((By.CLASS_NAME, "nav-link"))
 				WebDriverWait(driver, timeout).until(element_present)
-				nav_links = driver.find_elements_by_class_name("nav-link")
+				#nav_links = driver.find_elements_by_class_name("nav-link")
+				nav_links = driver.find_elements("class name", "nav-link")
 				found = False
 				for i in nav_links:
 					if(i.text == "Author"):
@@ -119,12 +127,18 @@ def query_website(driver, url, username, password, max_entries, timeout):
 						break
 				if found:
 					break
+				else:
+					retry += 1
+					sleep(timeout)
+			else:
+				print("Timed out retrieving data about manuscripts. Please try later")
+				return
 		except TimeoutException:
 			print("Timed out waiting for nav-link")
 			return
 
 	if max_entries > 0:
-		decision = driver.find_elements_by_class_name("nav-submenu")
+		decision = driver.find_elements("class name", "nav-submenu")
 		for i in decision:
 			if("Manuscripts with Decisions" in i.text):
 				i.click()
@@ -135,7 +149,7 @@ def query_website(driver, url, username, password, max_entries, timeout):
 				break
 
 	if max_entries > 0:
-		coauthor = driver.find_elements_by_class_name("nav-submenu")
+		coauthor = driver.find_elements("class name", "nav-submenu")
 		for i in coauthor:
 			if("Manuscripts I Have Co-Authored" in i.text):
 				i.click()
@@ -156,10 +170,15 @@ def main():
 	json_file_name = args.json
 
 	try:
-		options = Options()
+		#options = Options()
+		#options.add_argument("--headless")
+		#options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.102 Safari/537.36")
+		#driver = webdriver.Chrome('./chromedriver', options=options)
+		service = Service()
+		options = webdriver.ChromeOptions()
 		options.add_argument("--headless")
 		options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.102 Safari/537.36")
-		driver = webdriver.Chrome('./chromedriver', options=options)
+		driver = webdriver.Chrome(service=service, options=options)
 		print("\n\n")
 
 		with open(json_file_name) as json_file:
